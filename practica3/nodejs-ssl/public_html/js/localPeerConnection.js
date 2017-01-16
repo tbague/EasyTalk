@@ -11,7 +11,7 @@ function init() {
 
 	// JavaScript variables assciated with call management buttons in the page
 	var startButton = document.getElementById("startButton");
-	var sendButton = document.getElementById("sendButton");	
+	var sendButton = document.getElementById("sendButton");
 	var callButton = document.getElementById("callButton");
 	var hangupButton = document.getElementById("hangupButton");
 
@@ -47,28 +47,13 @@ function getTheCall(stream){
 	- Ha de cridar amb els paràmetres corresponents la funció del punt antenrior
 */
 function start() {
-  log("Requesting local stream");  
-  // disable the 'Start' button on the page
-  startButton.disabled = true;
-  // Get ready to deal with different browser vendors...
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-  // Now, call getUserMedia()  
-  if(navigator.getUserMedia){	  
-	  navigator.getUserMedia({audio: true, video: {width:1280, height: 720}}, 
-	  function(stream) {
-		  var video = document.querySelector('video');
-		  video.srcObject = stream;
-		  video.onloadmetadata = function(e){
-			  video.play();
-		  };
-	  },
-	  function(err){
-		  console.log("Ha passat el següent error: " + err.name);
-	  }
-	);
-  } else{
-	  console.log("getUnserMedia no està suportat");
-  }
+   log("Requesting local stream");
+   // disable the 'Start' button on the page
+   startButton.disabled  = true;
+   // Get ready to deal with different browser vendors...
+   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+   // Now, call getUserMedia()
+   navigator.getUserMedia({audio: false, video: true}, getTheCall, function(err){console.log("Ha passat el següent error: " + err.name); });
 }
 
 
@@ -83,59 +68,61 @@ function start() {
 function call() {
 	log("Starting call");
 	// Desactivar botó "call" i activar el botó "hangUp"
- 	callButton.disabled   = true;
+	callButton.disabled   = true;
  	hangupButton.disabled = false;
+
 	// Obtenir els objectes "RTCPeerConnection", "RTCSessionDescription" i "RTCIceCandidate" pels diferents navegadors que soporten webRTC
 	if (navigator.webkitGetUserMedia) {
-	          // Log info about video and audio device in use
-	          if (localStream.getVideoTracks().length > 0) {
-	            log('Using video device: ' + localStream.getVideoTracks()[0].label);
-	          }
-	          if (localStream.getAudioTracks().length > 0) {
-	            log('Using audio device: ' + localStream.getAudioTracks()[0].label);
-	          }
+		// Log info about video and audio device in use
+	  if (localStream.getVideoTracks().length > 0) {
+	  	log('Using video device: ' + localStream.getVideoTracks()[0].label);
 	  }
+	  if (localStream.getAudioTracks().length > 0) {
+	    log('Using audio device: ' + localStream.getAudioTracks()[0].label);
+	  }
+	}
 
 	// Chrome
 	if (navigator.webkitGetUserMedia) {
-         pcl = new RTCPeerConnection(servers);
-		 trace("Creada connexió local amb l'objecte pcl");
-		 pcl.onicecandidate = function(e){
-			 onicecandidate(pcl, e);
-		 }
+		var RTCPeerConnection = window.webkitRTCPeerConnection;
+		var IceCandidate = window.RTCIceCandidate;
+		var SessionDescription = window.RTCSessionDescription;
+
 	// Firefox
-	} else if(navigator.mozGetUserMedia){
-	        xxxx
-	        xxxx
-	        xxxx
+	}
+	else if(navigator.mozGetUserMedia){
+		var RTCPeerConnection = window.mozRTCPeerConnection;
+		var IceCandidate = window.mozRTCIceCandidate;
+		var SessionDescription = window.mozRTCSessionDescription;
 	 }
+
 	log("RTCPeerConnection object: " + RTCPeerConnection);
 	// variables ja definides per establir la conexió remota i la conexió local
 	var pc_constraints = { 'optional': [ { 'DtlsSrtpKeyAgreement': true } ] }; // JavaScript var associated with proper config. of an RTCPeerConnection object: use DTLS/SRTP
 	var servers = null;	// This is an optional configuration string, associated with NAT traversal setup
 	//Establir la conexió local i la conexió remota
-	localPeerConnection = xxxx;
+	localPeerConnection = new RTCPeerConnection(servers, pc_constraints);
   	log("Created local peer connection object localPeerConnection");
 	try {
-	        sendChannel = xxxx;
+	        sendChannel = localPeerConnection.createDataChannel("sendDataChannel", { reliable: true });
 	            log('Created reliable send data channel');
 	        } catch (e) {
 	            alert('Failed to create data channel!');
 	            log('createDataChannel() failed with following message: ' + e.message);
 	        }
- 	localPeerConnection.onicecandidate = xxxx;
-    sendChannel.onopen = xxxx;
-    sendChannel.onclose = xxxx;
-	window.remotePeerConnection = xxxx;
+ 	localPeerConnection.onicecandidate = obtenirIceCandidateLocal;
+  	sendChannel.onopen = tractarCanalEnviadorCanviEstat;
+  	sendChannel.onclose = tractarCanalEnviadorCanviEstat;
+	window.remotePeerConnection = new RTCPeerConnection(servers, pc_constraints);
 	log("Created remote peer connection object remotePeerConnection");
 	// Add a handler associated with ICE protocol events...
-	remotePeerConnection.onicecandidate = xxxx;
+	remotePeerConnection.onicecandidate = obtenirIceCandidateRemot;
 	// ...and a second handler to be activated as soon as the remote
 	// stream becomes available.
-	remotePeerConnection.onaddstream = xxxx;
+	remotePeerConnection.onaddstream = obtenirStreamRemot;
 	localPeerConnection.addStream(localStream);
 	log("Added localStream to localPeerConnection");
-	remotePeerConnection.ondatachannel = xxxx;
+	remotePeerConnection.ondatachannel = obtenirCanalReceptor;
 	// En aquest punt tot hauria d'estar a punt, es crea un 'Offer' per acabar d'establir la trucada
 	localPeerConnection.createOffer(obtenirDescripcioLocal, senyalitzarError);
 }
@@ -147,14 +134,14 @@ function call() {
 function sendData() {
 	// variable per guardar el text
 	//obtenir el text del 'dataChannelSend'
-    var data = xxxx;
+    	var data = dataChannelSend.value;
 	// enviar el text amb el 'sendChannel'
-	xxxx;
+	sendChannel.send(data);
 	log('Sent data: ' + data);
 }
 
 /* Aquesta funció està associada al botó "HangUp"
-	Ha de fer el següent:	
+	Ha de fer el següent:
 	- Tancar les connexions local i remota
 	- Resetejar les conexions local i remota
 	- Desactivar el botó 'hangUp' i activar el botó 'call'
@@ -162,17 +149,17 @@ function sendData() {
 function hangup() {
 	log("Ending call");
 	// Tancar conexions local i remota
-	xxxx
- 	xxxx
+	localPeerConnection.close();
+  	remotePeerConnection.close();
 	// Resetejar les conexions local i remota
-	xxxx
-	xxxx
-	// Desactivar el botó 'hangUp' i activar el botó 'call'	
-	xxxx
-	xxxx
+	localPeerConnection = null;
+  	remotePeerConnection = null;
+	// Desactivar el botó 'hangUp' i activar el botó 'call'
+  	hangupButton.disabled = true;
+  	callButton.disabled = false;
 	// Tancar el sendChannel i el receiveChannel
-	xxxx
-	xxxx
+	sendChannel.close();
+  	receiveChannel.close();
 	// Deixem la pàgina HTML tal i com estava al principi
 	sendButton.disabled = true;
 	dataChannelSend.value = "";
@@ -181,4 +168,3 @@ function hangup() {
 	dataChannelSend.placeholder = "1: Press Call; 2: Enter text; 3: Press Send.";
 	remoteVideo.src = "";
 }
-
