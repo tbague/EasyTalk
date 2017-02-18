@@ -12,8 +12,10 @@ var app = express();
 app.use('/', express.static(__dirname + '/public_html'));
 
 var server = https.createServer({ 
-        key: fs.readFileSync('./certs/WebRTC.key'),
-        cert: fs.readFileSync('./certs/WebRTC.crt'),
+        //key: fs.readFileSync('./certs/WebRTC.key'),
+	key: fs.readFileSync(__dirname + '/certs/WebRTC.key'),
+	//cert: fs.readFileSync('./certs/WebRTC.crt'),
+	cert: fs.readFileSync(__dirname + '/certs/WebRTC.crt'),
 }, app).listen(3443, function() { console.log('Listening SOCKET.IO')});
 
 // Use socket.io JavaScript library for real-time web applications

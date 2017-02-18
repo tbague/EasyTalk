@@ -1,0 +1,11 @@
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       909  0.0  0.0  14532   944 tty4     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty4
+root       912  0.0  0.0  14532   944 tty5     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty5
+root       916  0.0  0.0  14532   936 tty2     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty2
+root       917  0.0  0.0  14532   936 tty3     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty3
+root       919  0.0  0.0  14532   936 tty6     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty6
+root      1206  0.0  0.0  14532   944 tty1     Ss+  Feb12   0:00 /sbin/getty -8 38400 tty1
+root      1207  0.0  0.0  12780   844 ttyS0    Ss+  Feb12   0:00 /sbin/getty -8 38400 ttyS0
+ubuntu   12149  0.0  0.3  21448  4008 pts/0    Ss   08:18   0:00 -bash
+ubuntu   12229  0.0  0.1  17160  1284 pts/0    R+   08:38   0:00 ps -au
+ubuntu   12230  0.0  0.0   8264   944 pts/0    S+   08:38   0:00 less

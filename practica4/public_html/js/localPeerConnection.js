@@ -42,7 +42,30 @@ hangupButton.onclick = hangup;
 			             ]};
 						 
   // This is an optional configuration string, associated with NAT traversal setup
-  var servers = null;
+  //var servers = null;
+
+  var servers = {
+  'iceServers': [
+    {
+      'url': 'stun:stun.l.google.com:19302'
+    },
+    {
+	url: 'turn:numb.viagenie.ca:3478',
+	credential: 'hadock24',
+	username: 'teresa@programat.cat'    
+    },
+    {
+	url: 'turn:192.158.29.39:3478?transport=udp',
+	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	username: '28224511:1379330808'
+    },
+    {
+	url: 'turn:192.158.29.39:3478?transport=tcp',
+	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	username: '28224511:1379330808'
+    }  
+  ]
+}
 
 // Utility function for logging information to the JavaScript console
 function log(text) {
@@ -86,7 +109,10 @@ function successCallback(stream){
 			if(!callDone) call();
 			
 			// Create the remote PeerConnection object
-			  remotePeerConnection = new RTCPeerConnection(servers, pc_constraints);
+			  //remotePeerConnection = new RTCPeerConnection(servers, pc_constraints);
+			  //remotePeerConnection = new RTCPeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+			remotePeerConnection = new RTCPeerConnection(servers);
+
 			  lib.setRemotePeerConnection(remotePeerConnection);
 			  log("Created remote peer connection object remotePeerConnection");
 			  // Add a handler associated with ICE protocol events...
@@ -211,7 +237,10 @@ function call() {
   
 
   // Create the local PeerConnection object
-  localPeerConnection = new RTCPeerConnection(servers, pc_constraints);
+  //localPeerConnection = new RTCPeerConnection(servers, pc_constraints);
+  //localPeerConnection = new RTCPeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+  localPeerConnection = new RTCPeerConnection(servers);
+
   lib.setLocalPeerConnection(localPeerConnection);
   log("Created local peer connection object localPeerConnection, with Data Channel");
   
